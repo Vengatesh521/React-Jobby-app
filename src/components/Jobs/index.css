@@ -1,0 +1,74 @@
+/* General Styles */
+.jobs-page {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Profile Section */
+.profile-container {
+  margin-bottom: 20px;
+}
+
+/* Search Section */
+.search-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Content Section */
+.content-container {
+  display: flex;
+  gap: 20px;
+}
+
+/* Filters Section */
+.filters-container {
+  flex: 1;
+  background-color: #fff;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  height: fit-content;
+}
+
+/* Jobs List Section */
+.jobs-list-container {
+  flex: 3;
+  background-color: #fff;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
+  }
+
+  .filters-container,
+  .jobs-list-container {
+    width: 100%;
+  }
+}

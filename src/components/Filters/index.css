@@ -1,0 +1,35 @@
+.filters-container {
+  background-color: #f1f1f1;
+  padding: 20px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.filter-label {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filter-option input {
+  margin-right: 10px;
+}
+
+.filter-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.filter-btn:hover {
+  background-color: #45a049;
+}
