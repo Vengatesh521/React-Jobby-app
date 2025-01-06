@@ -135,40 +135,40 @@ class Jobs extends Component {
     const filteredJobs = this.filterJobs()
 
     return (
-      <div className='jobs-page'>
+      <div className="jobs-page">
         {/* Profile Section */}
-        <div className='profile-container'>
+        <div className="profile-container">
           <Profile />
         </div>
 
         {/* Search Section */}
-        <div className='search-container'>
+        <div className="search-container">
           <input
-            type='search'
-            placeholder='Search for jobs...'
-            className='search-input'
+            type="search"
+            placeholder="Search for jobs..."
+            className="search-input"
             onChange={this.handleSearchChange}
           />
           <button
-            type='button'
-            className='search-icon'
-            aria-label='Search jobs'
-            data-testid='searchButton' // Correct attribute for test ID
+            type="button"
+            className="search-icon"
+            aria-label="Search jobs"
+            data-testid="searchButton" // Correct attribute for test ID
           >
-            se
+            Search
           </button>
         </div>
 
         {/* Filters and Jobs List */}
-        <div className='content-container'>
-          <div className='filters-container'>
+        <div className="content-container">
+          <div className="filters-container">
             <Filters
               updateFilters={this.updateFilters}
               onCheckboxChange={this.handleCheckboxChange}
               onRadioChange={this.handleRadioChange}
             />
           </div>
-          <div className='jobs-list-container'>
+          <div className="jobs-list-container">
             <JobsList
               jobs={filteredJobs}
               isLoading={isLoading}
