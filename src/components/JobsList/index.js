@@ -3,11 +3,38 @@ import './index.css'
 
 const JobsList = ({jobs, apiStatus}) => {
   if (apiStatus === 'FAILURE') {
-    return <p>Something went wrong. Please try again.</p>
+    return (
+      <div className="failure-view">
+        <img
+          src="failure-image-url"
+          alt="failure view"
+          className="failure-image"
+        />
+        <h1>Oops! Something Went Wrong</h1>
+        <p>We cannot seem to find the page you are looking for</p>
+        <button
+          type="button"
+          className="retry-button"
+          onClick={() => window.location.reload()} // Retry logic
+        >
+          Retry
+        </button>
+      </div>
+    )
   }
 
   if (apiStatus === 'NO_DATA') {
-    return <p>No jobs found.</p>
+    return (
+      <div className="no-jobs-found">
+        <img
+          src="https://assets.ccbp.in/frontend/react-js/no-jobs-img.png"
+          alt="No jobs"
+          className="no-jobs-image"
+        />
+        <h1>No Jobs Found</h1>
+        <p>We could not find any jobs. Try other filters</p>
+      </div>
+    )
   }
 
   if (apiStatus === 'SUCCESS') {
@@ -16,8 +43,8 @@ const JobsList = ({jobs, apiStatus}) => {
         {jobs.length > 0 ? (
           <ul className="jobs-list">
             {jobs.map(job => (
-              <Link to={`/jobs/${job.id}`} className="job-link">
-                <li key={job.id} className="job-item">
+              <Link to={`/jobs/${job.id}`} className="job-link" key={job.id}>
+                <li className="job-item">
                   <div className="job-header">
                     <img
                       src={job.company_logo_url}
@@ -56,6 +83,7 @@ const JobsList = ({jobs, apiStatus}) => {
               className="no-jobs-image"
             />
             <h1>No Jobs Found</h1>
+            <p>We could not find any jobs. Try other filters</p>
           </div>
         )}
       </div>

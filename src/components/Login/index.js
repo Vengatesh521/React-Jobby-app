@@ -22,7 +22,7 @@ class Login extends Component {
   onSubmitSuccess = jwtToken => {
     const {history} = this.props
     Cookies.set('jwt_token', jwtToken, {expires: 30})
-    history.push('/')
+    history.replace('/')
   }
 
   onSubmitFailure = errorMsg => {
@@ -52,12 +52,12 @@ class Login extends Component {
     const {username} = this.state
     return (
       <>
-        <label type="text" className="input-label" htmlFor="username">
+        <label type="text" className="input-label" htmlFor="text">
           USERNAME
         </label>
         <input
           type="text"
-          id="username"
+          id="text"
           className="input-field"
           value={username}
           onChange={this.onChangeUsername}
@@ -97,6 +97,10 @@ class Login extends Component {
     return (
       <div className="login-container">
         <form className="form-container" onSubmit={this.submitForm}>
+          <img
+            src="https://assets.ccbp.in/frontend/react-js/logo-img.png"
+            alt="website logo"
+          />
           <h1>Login</h1>
           <div>{this.renderUsernameField()}</div>
           <div>{this.renderPasswordField()}</div>

@@ -52,6 +52,7 @@ class JobItemDetails extends Component {
           companyName: job.company_name,
           location: job.location,
           employmentType: job.employment_type,
+          job_description: job.job_description,
         }))
         this.setState({
           jobDetails: updatedJobDetails,
@@ -93,6 +94,8 @@ class JobItemDetails extends Component {
             <i className="fas fa-briefcase" />
             {job.employmentType}
           </p>
+          <h1>Description</h1>
+          <p>{job.job_description}</p>
         </div>
       </div>
     ))
