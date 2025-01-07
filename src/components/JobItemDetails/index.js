@@ -4,7 +4,10 @@ import './index.css'
 
 class JobItemDetails extends Component {
   state = {
-    jobDetails: {},
+    jobDetails: {
+      skills: [],
+      lifeAtCompany: {},
+    },
     similarJobs: [],
     isLoading: true,
     hasError: false,
@@ -26,38 +29,40 @@ class JobItemDetails extends Component {
       },
     }
 
-    const response = await fetch(url, options)
-    if (response.ok) {
-      const data = await response.json()
-      const updatedJobDetails = {
-        title: data.job_details.title,
-        rating: data.job_details.rating,
-        location: data.job_details.location,
-        employmentType: data.job_details.employment_type,
-        packagePerAnnum: data.job_details.package_per_annum,
-        companyLogoUrl: data.job_details.company_logo_url,
-        jobDescription: data.job_details.job_description,
-        skills: data.job_details.skills,
-        lifeAtCompany: data.job_details.life_at_company,
+    try {
+      const response = await fetch(url, options)
+      if (response.ok) {
+        const data = await response.json()
+        const updatedJobDetails = {
+          title: data.job_details.title,
+          rating: data.job_details.rating,
+          location: data.job_details.location,
+          employmentType: data.job_details.employment_type,
+          packagePerAnnum: data.job_details.package_per_annum,
+          companyWebsiteUrl: data.job_details.company_website_url,
+          companyLogoUrl: data.job_details.company_logo_url,
+          jobDescription: data.job_details.job_description,
+          skills: data.job_details.skills,
+          lifeAtCompany: data.job_details.life_at_company,
+        }
+        const updatedSimilarJobs = data.similar_jobs.map(job => ({
+          id: job.id,
+          title: job.title,
+          companyLogoUrl: job.company_logo_url,
+          companyName: job.company_name,
+          location: job.location,
+          employmentType: job.employment_type,
+        }))
+        this.setState({
+          jobDetails: updatedJobDetails,
+          similarJobs: updatedSimilarJobs,
+          isLoading: false,
+        })
+      } else {
+        this.setState({hasError: true, isLoading: false})
       }
-      const updatedSimilarJobs = data.similar_jobs.map(job => ({
-        id: job.id,
-        title: job.title,
-        companyLogoUrl: job.company_logo_url,
-        companyName: job.company_name,
-        location: job.location,
-        employmentType: job.employment_type,
-      }))
-      this.setState({
-        jobDetails: updatedJobDetails,
-        similarJobs: updatedSimilarJobs,
-        isLoading: false,
-      })
-    } else {
-      this.setState({
-        hasError: true,
-        isLoading: false,
-      })
+    } catch {
+      this.setState({hasError: true, isLoading: false})
     }
   }
 
@@ -74,7 +79,7 @@ class JobItemDetails extends Component {
       <div key={job.id} className="similar-job-card">
         <img
           src={job.companyLogoUrl}
-          alt="job details company logo"
+          alt="similar job company logo"
           className="company-logo"
         />
         <div className="job-card-details">
@@ -105,15 +110,13 @@ class JobItemDetails extends Component {
 
     if (hasError) {
       return (
-        <>
-          <h1 className="error">Oops! Something Went Wrong</h1>{' '}
-          <p className="error">
-            We cannot seem to find the page you are looking for
-          </p>
-          <button type="button" onClick={this.fetchJobDetails()}>
+        <div className="error-view">
+          <h1 className="error">Oops! Something Went Wrong</h1>
+          <p>We cannot seem to find the page you are looking for.</p>
+          <button type="button" onClick={this.fetchJobDetails}>
             Retry
           </button>
-        </>
+        </div>
       )
     }
 
@@ -124,6 +127,7 @@ class JobItemDetails extends Component {
       employmentType,
       packagePerAnnum,
       companyLogoUrl,
+      companyWebsiteUrl,
       jobDescription,
       skills,
       lifeAtCompany,
@@ -155,26 +159,28 @@ class JobItemDetails extends Component {
             </p>
           </div>
           <hr />
-          <h2>Description</h2>
-          <p>{jobDescription}</p>
-          <h2>Skills</h2>
-          <div className="skills-container">{this.renderSkills(skills)}</div>
-          <h2>Life at Company</h2>
-          <p>{lifeAtCompany.description}</p>
-          <img
-            src={lifeAtCompany.image_url}
-            alt="life at company"
-            className="company-life-image"
-          />
-        </div>
-        <div className="similar-jobs-section">
-          <h2>Similar Jobs</h2>
-          <ul className="similar-jobs-container">
-            <li>{this.renderSimilarJobs(similarJobs)}</li>
-          </ul>
-          <a href="www.google.com" target="_blank" rel="noopener noreferrer">
+          <h1>Description</h1>
+          <a href={companyWebsiteUrl} target="_blank" rel="noopener noreferrer">
             Visit
           </a>
+          <p>{jobDescription}</p>
+          <h1>Skills</h1>
+          <div className="skills-container">{this.renderSkills(skills)}</div>
+          <h1>Life at Company</h1>
+          <p>{lifeAtCompany?.description || ''}</p>
+          {lifeAtCompany?.image_url && (
+            <img
+              src={lifeAtCompany.image_url}
+              alt="life at company"
+              className="company-life-image"
+            />
+          )}
+        </div>
+        <div className="similar-jobs-section">
+          <h1>Similar Jobs</h1>
+          <ul className="similar-jobs-container">
+            {this.renderSimilarJobs(similarJobs)}
+          </ul>
         </div>
       </div>
     )
