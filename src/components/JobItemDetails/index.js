@@ -84,7 +84,7 @@ class JobItemDetails extends Component {
       <div key={job.id} className="similar-job-card">
         <img
           src={job.companyLogoUrl}
-          alt="job details company logo"
+          alt="similar job company logo"
           className="company-logo"
         />
         <div className="job-card-details">
@@ -190,7 +190,7 @@ class JobItemDetails extends Component {
             {lifeAtCompany?.image_url && (
               <img
                 src={lifeAtCompany.image_url}
-                alt="life at company"
+                alt="job details company logo"
                 className="company-life-image"
               />
             )}
