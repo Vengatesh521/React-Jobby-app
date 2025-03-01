@@ -1,21 +1,46 @@
 import {Component} from 'react'
 import Cookies from 'js-cookie'
-import Profile from '../Profile'
-import Filters from '../Filters'
-import JobsList from '../JobsList'
-
+import Loader from 'react-loader-spinner'
+import {BsSearch} from 'react-icons/bs'
+import Header from '../Header'
+import FilterGroup from '../FiltersGroup'
+import JobCard from '../JobCard'
 import './index.css'
+
+const Locations = [
+  {label: 'Delhi', employmentTypeId: 'DELHI'},
+  {label: 'Hyderabad', employmentTypeId: 'HYDERABAD'},
+]
+
+const employmentTypesList = [
+  {label: 'Full Time', employmentTypeId: 'FULLTIME'},
+  {label: 'Freelance', employmentTypeId: 'FREELANCE'},
+  {label: 'Part Time', employmentTypeId: 'PARTTIME'},
+  {label: 'Internship', employmentTypeId: 'INTERNSHIP'},
+]
+
+const salaryRangesList = [
+  {salaryRangeId: '1000000', label: '10 LPA and above'},
+  {salaryRangeId: '2000000', label: '20 LPA and above'},
+  {salaryRangeId: '3000000', label: '30 LPA and above'},
+  {salaryRangeId: '4000000', label: '40 LPA and above'},
+]
+
+const apiStatusConstants = {
+  initial: 'INITIAL',
+  success: 'SUCCESS',
+  failure: 'FAILURE',
+  inProgress: 'IN_PROGRESS',
+}
 
 class Jobs extends Component {
   state = {
-    jobs: [],
-    filters: {
-      employmentType: [], // array to hold selected employment types (checkbox)
-      salaryRange: '', // single value for salary range (radio button)
-      searchTerm: '', // search term
-    },
-    isLoading: true,
-    apiStatus: 'INITIAL', // 'SUCCESS', 'FAILURE', 'NO_DATA'
+    jobsList: [],
+    apiStatus: apiStatusConstants.initial,
+    employeeTypeList: [],
+    locationList: [],
+    minimumSalary: '',
+    searchInput: '',
   }
 
   componentDidMount() {
@@ -23,160 +48,216 @@ class Jobs extends Component {
   }
 
   getJobsData = async () => {
-    const {filters} = this.state
-    const {employmentType, salaryRange, searchTerm} = filters
+    this.setState({apiStatus: apiStatusConstants.inProgress})
 
-    // Construct URL with search term, employment types, and salary range
-    const url = `https://apis.ccbp.in/jobs?employment_type=${employmentType.join(
+    const {
+      employeeTypeList,
+      locationList,
+      minimumSalary,
+      searchInput,
+    } = this.state
+    const apiUrl = `https://apis.ccbp.in/jobs?employment_type=${employeeTypeList.join(
       ',',
-    )}&minimum_package=${salaryRange}&search=${searchTerm}`
+    )}&location=${locationList.join(
+      ',',
+    )}&minimum_package=${minimumSalary}&search=${searchInput}`
 
-    console.log('API URL:', url)
-
+    const jwtToken = Cookies.get('jwt_token')
     const options = {
-      method: 'GET',
       headers: {
-        Authorization: `Bearer ${Cookies.get('jwt_token')}`,
+        Authorization: `Bearer ${jwtToken}`,
       },
+      method: 'GET',
     }
 
     try {
-      const response = await fetch(url, options)
+      const response = await fetch(apiUrl, options)
       if (response.ok) {
         const data = await response.json()
+        const updatedJobsData = data.jobs.map(eachJob => ({
+          companyLogoUrl: eachJob.company_logo_url,
+          employmentType: eachJob.employment_type,
+          id: eachJob.id,
+          jobDescription: eachJob.job_description,
+          packagePerAnnum: eachJob.package_per_annum,
+          rating: eachJob.rating,
+          title: eachJob.title,
+          location: eachJob.location, // Added location to job data
+        }))
         this.setState({
-          jobs: data.jobs,
-          apiStatus: data.jobs.length === 0 ? 'NO_DATA' : 'SUCCESS',
-          isLoading: false,
+          jobsList: updatedJobsData,
+          apiStatus: apiStatusConstants.success,
         })
       } else {
-        this.setState({
-          apiStatus: 'FAILURE',
-          isLoading: false,
-        })
+        this.setState({apiStatus: apiStatusConstants.failure})
       }
     } catch (error) {
-      this.setState({
-        apiStatus: 'FAILURE',
-        isLoading: false,
-      })
+      this.setState({apiStatus: apiStatusConstants.failure})
     }
   }
 
-  updateFilters = updatedFiltersCallback => {
-    this.setState(
-      prevState => ({
-        filters: updatedFiltersCallback(prevState.filters),
-      }),
-      this.getJobsData, // Call API after updating filters
+  renderJobsList = () => {
+    const {jobsList} = this.state
+    const renderJobsList = jobsList.length > 0
+
+    return renderJobsList ? (
+      <div className="all-jobs-container">
+        <ul className="jobs-list">
+          {jobsList.map(job => (
+            <JobCard jobData={job} key={job.id} />
+          ))}
+        </ul>
+      </div>
+    ) : (
+      <div className="no-jobs-view">
+        <img
+          src="https://assets.ccbp.in/frontend/react-js/no-jobs-img.png"
+          className="no-jobs-img"
+          alt="no jobs"
+        />
+        <h1 className="no-jobs-heading">No Jobs Found</h1>
+        <p className="no-jobs-description">
+          We could not find any jobs. Try other filters.
+        </p>
+      </div>
     )
   }
 
-  handleSearchChange = event => {
-    const searchTerm = event.target.value
-    this.setState(
-      prevState => ({
-        filters: {...prevState.filters, searchTerm},
-      }),
-      this.getJobsData, // Fetch jobs after search term change
-    )
+  renderFailureView = () => (
+    <div className="jobs-error-view-container">
+      <img
+        src="https://assets.ccbp.in/frontend/react-js/failure-img.png"
+        alt="failure view"
+        className="jobs-failure-img"
+      />
+      <h1 className="jobs-failure-heading-text">Oops! Something Went Wrong</h1>
+      <p className="jobs-failure-description">
+        We cannot seem to find the page you are looking for
+      </p>
+      <button
+        type="button"
+        data-testid="button"
+        className="jobs-failure-button"
+        onClick={this.getJobsData}
+      >
+        Retry
+      </button>
+    </div>
+  )
+
+  renderLoadingView = () => (
+    <div className="loader-container" data-testid="loader">
+      <Loader type="ThreeDots" color="#ffffff" height="50" width="50" />
+    </div>
+  )
+
+  renderAllJobs = () => {
+    const {apiStatus} = this.state
+
+    switch (apiStatus) {
+      case apiStatusConstants.success:
+        return this.renderJobsList()
+      case apiStatusConstants.failure:
+        return this.renderFailureView()
+      case apiStatusConstants.inProgress:
+        return this.renderLoadingView()
+      default:
+        return null
+    }
   }
 
-  handleCheckboxChange = event => {
-    const {name, checked} = event.target
-    this.setState(prevState => {
-      const updatedEmploymentType = checked
-        ? [...prevState.filters.employmentType, name]
-        : prevState.filters.employmentType.filter(
-            employment => employment !== name,
-          )
-      return {
-        filters: {...prevState.filters, employmentType: updatedEmploymentType},
-      }
-    }, this.getJobsData) // Fetch jobs after filter change
+  changeSalary = salaryRangeId => {
+    this.setState({minimumSalary: salaryRangeId}, this.getJobsData)
   }
 
-  handleRadioChange = event => {
-    const {value} = event.target
-    this.setState(
-      prevState => ({
-        filters: {...prevState.filters, salaryRange: value},
-      }),
-      this.getJobsData, // Fetch jobs after radio change
-    )
+  changeEmployeeList = type => {
+    const {employeeTypeList} = this.state
+    const inputNotInList = employeeTypeList.includes(type)
+
+    if (!inputNotInList) {
+      this.setState(
+        prevState => ({
+          employeeTypeList: [...prevState.employeeTypeList, type],
+        }),
+        this.getJobsData,
+      )
+    } else {
+      const filteredData = employeeTypeList.filter(
+        eachItem => eachItem !== type,
+      )
+      this.setState({employeeTypeList: filteredData}, this.getJobsData)
+    }
   }
 
-  filterJobs = () => {
-    const {jobs, filters} = this.state
-    const {employmentType, salaryRange, searchTerm} = filters
+  changeLocationList = type => {
+    const {locationList} = this.state
+    const inputNotInList = locationList.includes(type)
 
-    return jobs.filter(job => {
-      // Employment Type Filter
-      const matchesEmploymentType =
-        employmentType.length === 0 ||
-        employmentType.includes(job.employment_type)
+    if (!inputNotInList) {
+      this.setState(
+        prevState => ({
+          locationList: [...prevState.locationList, type],
+        }),
+        this.getJobsData,
+      )
+    } else {
+      const filteredData = locationList.filter(eachItem => eachItem !== type)
+      this.setState({locationList: filteredData}, this.getJobsData)
+    }
+  }
 
-      // Salary Range Filter
-      const matchesSalaryRange =
-        salaryRange === '' ||
-        parseInt(job.package_per_annum) >= parseInt(salaryRange)
+  changeSearchInput = event => {
+    this.setState({searchInput: event.target.value})
+  }
 
-      // Search Term Filter
-      const matchesSearchTerm = job.title
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-
-      return matchesEmploymentType && matchesSalaryRange && matchesSearchTerm
-    })
+  onEnterSearchInput = event => {
+    if (event.key === 'Enter') {
+      this.getJobsData()
+    }
   }
 
   render() {
-    const {isLoading, apiStatus} = this.state
-    const filteredJobs = this.filterJobs()
-
+    const {searchInput} = this.state
     return (
-      <div className="jobs-page">
-        {/* Profile Section */}
-        <div className="profile-container">
-          <Profile />
-        </div>
-
-        {/* Search Section */}
-        <div className="search-container">
-          <input
-            type="search"
-            placeholder="Search for jobs..."
-            className="search-input"
-            onChange={this.handleSearchChange}
-          />
-          <button
-            type="button"
-            className="search-icon"
-            aria-label="Search jobs"
-            data-testid="searchButton" // Correct attribute for test ID
-          >
-            Search
-          </button>
-        </div>
-
-        {/* Filters and Jobs List */}
-        <div className="content-container">
-          <div className="filters-container">
-            <Filters
-              updateFilters={this.updateFilters}
-              onCheckboxChange={this.handleCheckboxChange}
-              onRadioChange={this.handleRadioChange}
+      <>
+        <Header />
+        <div className="jobs-container">
+          <div className="jobs-content">
+            <FilterGroup
+              employmentTypesList={employmentTypesList}
+              locationsList={Locations}
+              salaryRangesList={salaryRangesList}
+              changeSearchInput={this.changeSearchInput}
+              searchInput={searchInput}
+              getJobs={this.getJobsData}
+              changeSalary={this.changeSalary}
+              changeEmployeeList={this.changeEmployeeList}
+              changeLocationList={this.changeLocationList}
             />
-          </div>
-          <div className="jobs-list-container">
-            <JobsList
-              jobs={filteredJobs}
-              isLoading={isLoading}
-              apiStatus={apiStatus}
-            />
+            <div className="search-input-jobs-list-container">
+              <div className="search-input-container-desktop">
+                <input
+                  type="search"
+                  className="search-input-desktop"
+                  placeholder="Search"
+                  value={searchInput}
+                  onChange={this.changeSearchInput}
+                  onKeyDown={this.onEnterSearchInput}
+                />
+                <button
+                  type="button"
+                  data-testid="searchButton"
+                  className="search-button-container-desktop"
+                  onClick={this.getJobsData}
+                >
+                  <BsSearch className="search-icon-desktop" />
+                </button>
+              </div>
+              {this.renderAllJobs()}
+            </div>
           </div>
         </div>
-      </div>
+      </>
     )
   }
 }

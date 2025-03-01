@@ -1,5 +1,9 @@
 import {Component} from 'react'
 import Cookies from 'js-cookie'
+import {Link} from 'react-router-dom'
+
+import Header from '../Header'
+
 import './index.css'
 
 class JobItemDetails extends Component {
@@ -80,7 +84,7 @@ class JobItemDetails extends Component {
       <div key={job.id} className="similar-job-card">
         <img
           src={job.companyLogoUrl}
-          alt="similar job company logo"
+          alt="job details company logo"
           className="company-logo"
         />
         <div className="job-card-details">
@@ -114,6 +118,11 @@ class JobItemDetails extends Component {
     if (hasError) {
       return (
         <div className="error-view">
+          <img
+            src="https://assets.ccbp.in/frontend/react-js/failure-img.png "
+            alt="failure view"
+            className="company-logo"
+          />
           <h1 className="error">Oops! Something Went Wrong</h1>
           <p>We cannot seem to find the page you are looking for.</p>
           <button type="button" onClick={this.fetchJobDetails}>
@@ -137,55 +146,63 @@ class JobItemDetails extends Component {
     } = jobDetails
 
     return (
-      <div className="job-details-page">
-        <div className="job-details-card">
-          <div className="job-header">
-            <img
-              src={companyLogoUrl}
-              alt="company logo"
-              className="company-logo"
-            />
-            <div className="job-header-details">
-              <h1>{title}</h1>
-              <p className="rating">⭐{rating}</p>
-              <p className="salary">{packagePerAnnum}</p>
+      <>
+        {' '}
+        <Header />
+        <div className="job-details-page">
+          <div className="job-details-card">
+            <div className="job-header">
+              <img
+                src={companyLogoUrl}
+                alt="company logo"
+                className="company-logo"
+              />
+              <div className="job-header-details">
+                <h1>{title}</h1>
+                <p className="rating">{rating}</p>
+                <p className="salary">{packagePerAnnum}</p>
+              </div>
             </div>
+            <div className="job-info">
+              <p className="job-location">
+                <i className="fas fa-map-marker-alt" />
+                {location}
+              </p>
+              <p className="employment-type">
+                <i className="fas fa-briefcase" />
+                {employmentType}
+              </p>
+            </div>
+            <hr />
+            <h1>Description</h1>
+            <a
+              href={companyWebsiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Visit
+            </a>
+            <p>{jobDescription}</p>
+            <h1>Skills</h1>
+            <div className="skills-container">{this.renderSkills(skills)}</div>
+            <h1>Life at Company</h1>
+            <p>{lifeAtCompany?.description || ''}</p>
+            {lifeAtCompany?.image_url && (
+              <img
+                src={lifeAtCompany.image_url}
+                alt="life at company"
+                className="company-life-image"
+              />
+            )}
           </div>
-          <div className="job-info">
-            <p className="job-location">
-              <i className="fas fa-map-marker-alt" />
-              {location}
-            </p>
-            <p className="employment-type">
-              <i className="fas fa-briefcase" />
-              {employmentType}
-            </p>
+          <div className="similar-jobs-section">
+            <h1>Similar Jobs</h1>
+            <ul className="similar-jobs-container">
+              {this.renderSimilarJobs(similarJobs)}
+            </ul>
           </div>
-          <hr />
-          <h1>Description</h1>
-          <a href={companyWebsiteUrl} target="_blank" rel="noopener noreferrer">
-            Visit
-          </a>
-          <p>{jobDescription}</p>
-          <h1>Skills</h1>
-          <div className="skills-container">{this.renderSkills(skills)}</div>
-          <h1>Life at Company</h1>
-          <p>{lifeAtCompany?.description || ''}</p>
-          {lifeAtCompany?.image_url && (
-            <img
-              src={lifeAtCompany.image_url}
-              alt="life at company"
-              className="company-life-image"
-            />
-          )}
         </div>
-        <div className="similar-jobs-section">
-          <h1>Similar Jobs</h1>
-          <ul className="similar-jobs-container">
-            {this.renderSimilarJobs(similarJobs)}
-          </ul>
-        </div>
-      </div>
+      </>
     )
   }
 }

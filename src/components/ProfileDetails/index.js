@@ -2,7 +2,7 @@ import {Component} from 'react'
 import Cookies from 'js-cookie'
 import './index.css'
 
-class Profile extends Component {
+class ProfileDetails extends Component {
   state = {
     profile: null,
     apiStatus: 'INITIAL', // 'SUCCESS' or 'FAILURE'
@@ -75,4 +75,4 @@ class Profile extends Component {
   }
 }
 
-export default Profile
+export default ProfileDetails
