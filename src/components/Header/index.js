@@ -2,7 +2,7 @@ import {Link, withRouter} from 'react-router-dom'
 import Cookies from 'js-cookie'
 import {FiLogOut} from 'react-icons/fi'
 import {AiFillHome} from 'react-icons/ai'
-import {BsFillBriefcaseFill} from 'react-icons/bs'
+import {BsFillBriefcaseFill, BsBookmarkFill} from 'react-icons/bs' // Added BsBookmarkFill
 import './index.css'
 
 const Header = props => {
@@ -35,6 +35,12 @@ const Header = props => {
               </Link>
             </li>
             <li>
+              <Link to="/saved-jobs">
+                <BsBookmarkFill className="nav-item-mobile-link" />{' '}
+                {/* Bookmark icon */}
+              </Link>
+            </li>
+            <li>
               <button
                 type="button"
                 className="nav-mobile-btn"
@@ -63,6 +69,11 @@ const Header = props => {
             <li className="nav-menu-item">
               <Link to="/jobs" className="nav-link">
                 Jobs
+              </Link>
+            </li>
+            <li className="nav-menu-item">
+              <Link to="/saved-jobs" className="nav-link">
+                Saved Jobs {/* Desktop link */}
               </Link>
             </li>
           </ul>

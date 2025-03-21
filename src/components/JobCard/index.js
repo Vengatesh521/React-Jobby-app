@@ -1,6 +1,12 @@
 import {Link} from 'react-router-dom'
-import {BsFillBriefcaseFill, BsStarFill} from 'react-icons/bs'
+import {
+  BsFillBriefcaseFill,
+  BsStarFill,
+  BsBookmark,
+  BsBookmarkFill,
+} from 'react-icons/bs' // Added bookmark icons
 import {MdLocationOn} from 'react-icons/md'
+import {useState} from 'react' // Added useState
 import './index.css'
 
 const JobCard = ({jobData}) => {
@@ -14,6 +20,25 @@ const JobCard = ({jobData}) => {
     title,
     id,
   } = jobData
+
+  // Local state to track bookmark status
+  const [isBookmarked, setIsBookmarked] = useState(() => {
+    const savedJobs = JSON.parse(localStorage.getItem('savedJobs')) || []
+    return savedJobs.some(job => job.id === id)
+  })
+
+  // Toggle bookmark and update local storage
+  const toggleBookmark = () => {
+    const savedJobs = JSON.parse(localStorage.getItem('savedJobs')) || []
+    let updatedJobs
+    if (isBookmarked) {
+      updatedJobs = savedJobs.filter(job => job.id !== id)
+    } else {
+      updatedJobs = [...savedJobs, jobData]
+    }
+    localStorage.setItem('savedJobs', JSON.stringify(updatedJobs))
+    setIsBookmarked(!isBookmarked)
+  }
 
   return (
     <Link to={`/jobs/${id}`} className="link-item">
@@ -33,6 +58,21 @@ const JobCard = ({jobData}) => {
               </div>
             </div>
           </div>
+          {/* Bookmark button */}
+          <button
+            type="button"
+            className="bookmark-btn"
+            onClick={e => {
+              e.preventDefault() // Prevent Link navigation
+              toggleBookmark()
+            }}
+          >
+            {isBookmarked ? (
+              <BsBookmarkFill className="bookmark-icon filled" />
+            ) : (
+              <BsBookmark className="bookmark-icon" />
+            )}
+          </button>
         </div>
 
         <div className="location-employee-container">
